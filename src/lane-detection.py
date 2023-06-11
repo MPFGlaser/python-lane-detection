@@ -3,6 +3,11 @@ import cv2
 import numpy as np
 
 
+# Does what it says on the tin, converts a frame to grayscale.
+def convert_to_grayscale(frame):
+    return cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+
+
 # Crops the frame to the region of interest, leaving only relevant data.
 def crop_frame(frame):
     # Define width and height of frame.
@@ -34,6 +39,8 @@ def crop_frame(frame):
 
 # Processes the frame, applying all necessary filters and transformations.
 def process_frame(frame):
+    # Convert to grayscale
+    frame = convert_to_grayscale(frame)
     # Apply crop
     frame = crop_frame(frame)
 
