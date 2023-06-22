@@ -16,6 +16,9 @@ def crop_frame(frame):
     frame_width = frame.shape[1]
 
     # Create polygon of 3 points based on frame dimensions.
+    # This leaves a triangle going from the bottom left, to the middle of the frame, to the bottom right.
+    # Since all bits of the road appear in that area, the rest can be cropped out to simplify processing.
+    # If the road happens to appear outside of the triangle, you've got bigger problems.
     relevant_polygon = [
         (0, frame_height),
         (frame_width / 2, frame_height / 1.5),
@@ -31,7 +34,7 @@ def crop_frame(frame):
     # Fill the polygon with the mask color, creating a black triangle from the three points we had earlier
     cv2.fillPoly(mask, np.array([relevant_polygon], np.int32), matched_mask_color)
 
-    # Mask the frame, leaving only the relevant triangle.
+    # Mask the frame, leaving only the relevant (black) triangle.
     masked_frame = cv2.bitwise_and(frame, mask)
 
     return masked_frame
@@ -60,13 +63,14 @@ def detect_lines(frame):
 
 # Draw lines on the frame.
 def draw_lines(original_frame, lines):
-    # Create a blank image to draw lines on.
+    # Create a blank image of the same size as the original frame to draw lines on.
     canvas = np.zeros_like(original_frame)
 
     # If no lines were detected, return the original frame instead of crashing the program.
     try:
         for line in lines:
             for x1, y1, x2, y2 in line:
+                # Draw a line based on the given coordinates
                 cv2.line(canvas, (x1, y1), (x2, y2), (0, 0, 255), thickness=5)
 
         return cv2.addWeighted(original_frame, 0.5, canvas, 1, 0.0)
